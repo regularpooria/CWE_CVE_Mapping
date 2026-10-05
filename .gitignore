@@ -1,2 +1,7 @@
 venv
 .env
+
+experiments/all_minilm_l6_v2_finetune_16bit
+
+dataset/hf_upload
+dataset/nvd_hf_upload
