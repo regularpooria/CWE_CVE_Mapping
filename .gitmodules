@@ -1,0 +1,3 @@
+[submodule "llm_empirical_analysis/cwe-classifier"]
+	path = llm_empirical_analysis/cwe-classifier
+	url = https://github.com/AlexanderDaRe/cwe-classifier.git
