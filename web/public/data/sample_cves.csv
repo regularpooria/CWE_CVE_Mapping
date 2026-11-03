@@ -1,0 +1,9 @@
+CVE-ID,CVE-DESCRIPTION
+CVE-2023-0001,"The product does not neutralize special elements used in an SQL command, allowing an attacker to inject SQL and execute arbitrary database queries."
+CVE-2023-0002,"A cross-site scripting vulnerability exists because user input is not sanitized before being written to a web page."
+CVE-2023-0003,"A buffer overflow in the parser allows remote attackers to execute arbitrary code via a crafted file."
+CVE-2023-0004,"The product uses a pathname constructed from user input without restricting the path to an intended directory, allowing an attacker to read arbitrary files."
+CVE-2023-0005,"The application uses a weak pseudo-random number generator to create session identifiers, making the tokens predictable."
+CVE-2023-0006,"The product does not properly validate a certificate chain, allowing an attacker to impersonate a trusted server."
+CVE-2023-0007,"An attacker can trigger an integer overflow in the length calculation, leading to a heap-based buffer overflow."
+CVE-2023-0008,"The application writes sensitive information such as passwords to a log file that is accessible to other users."

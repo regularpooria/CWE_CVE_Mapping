@@ -12,3 +12,7 @@ dataset/nvd_hf_upload
 dataset/merged_hf_upload
 
 models/hf_upload
+models/hf_onnx
+
+web/node_modules
+web/dist
