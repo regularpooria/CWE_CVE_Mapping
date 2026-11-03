@@ -1,5 +1,6 @@
 venv
 .env
+.secrets/
 
 __pycache__/
 

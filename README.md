@@ -135,8 +135,26 @@ Fine-tuning improves every target over the untuned encoder, and on the flat-chil
 variants beat the SOTA classifier at a fraction of its size. The L6 variant is the efficient default —
 the flat-child accuracy is essentially identical between the two sizes.
 
-`experiments/model_comparison.ipynb` reproduces these numbers and writes
-`experiments/comparison_results.csv`.
+The SOTA classifier is a flat label classifier: its **flat child** score is its primary output (and
+its category score is derived by mapping predicted children back to their parents), so it has no
+hierarchical-child entry — there is no category stage to restrict. Hierarchical-child scores depend
+on the beam width (`BEAM`, set to 20 in the notebook); rerun the notebook to refresh them after
+changing it.
+
+The comparison notebook also computes a **majority-class** baseline and a finer-grained error
+analysis: **macro-F1**, **head vs. tail** accuracy@1, per-CWE precision/recall/F1, and a two-panel
+**CWE-level confusion matrix** (SOTA vs. the best hierarchy-aware model) over the most frequent
+CWEs, ordered by parent category so within-category confusion forms diagonal blocks. Full matrices
+for every method are written to `confusion_<method>.csv` for the appendix. The hierarchical search
+visits the top-20 categories and is vectorized, so evaluation no longer spends its time in
+per-child Python loops.
+
+`experiments/model_comparison.ipynb` reproduces these numbers and writes:
+
+- `experiments/comparison_results.csv` — recall@k per method and target
+- `experiments/mrr_results.csv` — flat MRR per method
+- `experiments/per_cwe_results.csv` — per-CWE precision/recall/F1
+- `experiments/confusion_<method>.csv` — full confusion matrices
 
 ## Visualizer
 
