@@ -74,8 +74,17 @@ projections, then merged back into the base weights so inference is a single for
 | `cve_to_category` | CVE → its parent category | nearest other category | stage-1 (category) ranking |
 | `cwe_geometry` | CWE → a sibling CWE | look-alike from another category | siblings closer / other categories apart |
 
-Hard negatives are mined with the *untuned* encoder, and the CWE side of every pair is rendered as the
-node title, its summary, and the titles of its immediate children.
+Hard negatives are mined with the *untuned* encoder. Child nodes are rendered from their description
+and extended description; category nodes add their title, summary, and immediate-child titles.
+
+**Hierarchy-aware training vs. hierarchy-guided inference.** The hierarchy is injected during training
+by the three objectives above; the model learns to place a CVE near both its child CWE and its parent
+category, and to keep sibling CWEs close while separating cross-category look-alikes. At inference, the
+category ranking can optionally route the child search (top-`B` categories, then their children). That
+routing is a retrieval constraint, not a learned hierarchy. With the wide beam used in the paper
+(`B=20` of 40 categories) the hierarchical and flat child rankings are essentially identical, so the
+flat ranking is the primary result; the training-objective ablation is the evidence that the hierarchy
+matters. See `experiments/hierarchy_ablation.ipynb`.
 
 ### Controlled variables
 
@@ -120,20 +129,30 @@ taxonomy (*flat*).
 
 | Target | Model | @1 | @3 | @5 |
 | --- | --- | --- | --- | --- |
-| Category | Baseline (untuned L6) | 0.236 | 0.409 | 0.510 |
-| Category | **HiCWE-MiniLM-L6-v2** | 0.750 | 0.856 | 0.889 |
-| Category | **HiCWE-MiniLM-L12-v2** | 0.789 | 0.867 | 0.897 |
-| Category | SOTA classifier (`mulliken/cwe-predictor`) | 0.802 | 0.862 | 0.869 |
-| Child (hier.) | **HiCWE-MiniLM-L6-v2** | 0.695 | 0.735 | 0.756 |
-| Child (hier.) | **HiCWE-MiniLM-L12-v2** | 0.726 | 0.770 | 0.787 |
-| Child (flat) | Baseline (untuned L6) | 0.337 | 0.432 | 0.479 |
-| Child (flat) | **HiCWE-MiniLM-L6-v2** | 0.753 | 0.828 | 0.853 |
-| Child (flat) | **HiCWE-MiniLM-L12-v2** | 0.754 | 0.824 | 0.850 |
-| Child (flat) | SOTA classifier (`mulliken/cwe-predictor`) | 0.655 | 0.753 | 0.779 |
+| Category | Majority class | 0.473 | 0.668 | 0.749 |
+| Category | Baseline (untuned L6) | 0.235 | 0.408 | 0.508 |
+| Category | Baseline (untuned L12) | 0.418 | 0.634 | 0.738 |
+| Category | **HiCWE-MiniLM-L6-v2** | 0.763 | 0.865 | 0.896 |
+| Category | **HiCWE-MiniLM-L12-v2** | **0.820** | **0.888** | **0.913** |
+| Category | SOTA classifier (`mulliken/cwe-predictor`) | **0.820** | 0.875 | 0.881 |
+| Child (hier.) | Majority class | 0.289 | 0.478 | 0.560 |
+| Child (hier.) | Baseline (untuned L6) | 0.350 | 0.436 | 0.478 |
+| Child (hier.) | Baseline (untuned L12) | 0.397 | 0.486 | 0.532 |
+| Child (hier.) | **HiCWE-MiniLM-L6-v2** | 0.774 | 0.840 | 0.862 |
+| Child (hier.) | **HiCWE-MiniLM-L12-v2** | **0.789** | **0.852** | **0.872** |
+| Child (flat) | Majority class | 0.289 | 0.478 | 0.560 |
+| Child (flat) | Baseline (untuned L6) | 0.362 | 0.453 | 0.497 |
+| Child (flat) | Baseline (untuned L12) | 0.395 | 0.482 | 0.526 |
+| Child (flat) | **HiCWE-MiniLM-L6-v2** | 0.771 | 0.839 | 0.862 |
+| Child (flat) | **HiCWE-MiniLM-L12-v2** | **0.789** | **0.852** | **0.873** |
+| Child (flat) | SOTA classifier (`mulliken/cwe-predictor`) | 0.678 | 0.775 | 0.799 |
 
 Fine-tuning improves every target over the untuned encoder, and on the flat-child target both HiCWE
-variants beat the SOTA classifier at a fraction of its size. The L6 variant is the efficient default —
-the flat-child accuracy is essentially identical between the two sizes.
+variants beat the SOTA classifier at a fraction of its size. On the finer-grained metrics, HiCWE-L12
+reaches macro-F1 **0.225** (vs 0.069 for SOTA, with predictions outside the 304 test labels counted
+as errors; the earlier 0.083 figure dropped those predictions), flat MRR **0.829** (vs 0.732), head
+accuracy@1 **0.787** (vs 0.680), and tail accuracy@1 **0.216** (vs 0.000). The L6 variant is the
+efficient default — the flat-child accuracy is essentially identical between the two sizes.
 
 The SOTA classifier is a flat label classifier: its **flat child** score is its primary output (and
 its category score is derived by mapping predicted children back to their parents), so it has no
@@ -155,6 +174,15 @@ per-child Python loops.
 - `experiments/mrr_results.csv` — flat MRR per method
 - `experiments/per_cwe_results.csv` — per-CWE precision/recall/F1
 - `experiments/confusion_<method>.csv` — full confusion matrices
+
+### Hierarchy ablation and end-to-end simulation
+
+- `experiments/hierarchy_ablation.ipynb` — separates hierarchy-aware training (three contrastive
+  objectives; child-only vs full ablation) from hierarchy-guided inference (beam-size sweep over
+  `B = 1..40` categories).
+- `experiments/end_to_end_simulation.ipynb` — replaces the official NVD CWE with HiCWE top-1/top-3/top-5
+  predictions for 2021–2025, recomputes the smoothed historical exploitation score from prior years,
+  and compares PR-AUC/P@100 against the official-CWE, no-CWE, random, and optional EPSS/CVSS rankings.
 
 ## Visualizer
 

@@ -74,7 +74,7 @@ Fine-tuning improves every target over the untuned encoder. The hierarchy-full r
 
 The untuned `all-MiniLM-L12-v2` is stronger than the untuned L6 variant, but after fine-tuning the gap largely closes (category and hierarchical child accuracy differ by at most ~4 points; flat child is essentially identical). Doubling the depth adds little once the model is trained with the hierarchy, suggesting the limit is the training data rather than model capacity.
 
-> **Note on the SOTA comparison.** The SOTA classifier is a flat label classifier: its **flat child** score is its primary output, and its category score is derived by mapping predicted children back to their parents. It therefore has no hierarchical-child entry (there is no category stage to restrict). Hierarchical-child scores depend on the beam width (`BEAM`, currently 20 in `experiments/model_comparison.ipynb`). That notebook also reports a majority-class baseline, macro-F1, head/tail accuracy, per-CWE metrics, and confusion matrices.
+> **Note on the SOTA comparison.** The SOTA classifier is a flat label classifier: its **flat child** score is its primary output, and its category score is derived by mapping predicted children back to their parents. It therefore has no hierarchical-child entry (there is no category stage to restrict); the paper repeats its flat numbers in that row only for comparison. Hierarchical-child scores depend on the beam width (`BEAM`, currently 20 in `experiments/model_comparison.ipynb`). That notebook also reports a majority-class baseline, macro-F1, head/tail accuracy, per-CWE metrics, and confusion matrices.
 
 ## Usage
 
