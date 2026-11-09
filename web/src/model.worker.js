@@ -1,6 +1,8 @@
 import { AutoModel, PreTrainedTokenizer, env } from "@huggingface/transformers";
 import { MAX_LENGTH, MODEL_DTYPE, MODEL_LOCAL_ID } from "./config.js";
 
+// Only read the model files bundled under public/models/. No remote model
+// host is contacted at runtime.
 env.allowLocalModels = true;
 env.allowRemoteModels = false;
 env.useBrowserCache = true;

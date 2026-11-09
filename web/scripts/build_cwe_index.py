@@ -25,10 +25,9 @@ from transformers import AutoTokenizer
 
 INDEX_VERSION = 3
 MODEL_ID = "HiCWE-MiniLM-L12"
-MODEL_REVISION = "rizm2zd9qgqe"
+MODEL_REVISION = "local-v1"
 MODEL_DTYPE = "q8"
 MAX_LENGTH = 512
-MODEL_SOURCE = "https://anonymous-hf.com/a/rizm2zd9qgqe/"
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_MODEL_DIR = ROOT / "web" / "public" / "models" / "hicwe"
@@ -162,7 +161,6 @@ def main() -> int:
         "maxLength": MAX_LENGTH,
         "cweHash": js_hash(raw),
         "dim": int(category_vectors.shape[1]),
-        "source": MODEL_SOURCE,
         "categoryIds": category_ids,
         "categoryVectors": encode_vectors(category_vectors),
         "childIds": child_ids,

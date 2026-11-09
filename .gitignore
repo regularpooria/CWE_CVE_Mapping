@@ -6,6 +6,8 @@ __pycache__/
 
 experiments/all_minilm_l6_v2_finetune_16bit
 experiments/*.zip
+experiments/cache/
+experiments/simulation_outputs/
 
 dataset/hf_upload
 dataset/nvd_hf_upload

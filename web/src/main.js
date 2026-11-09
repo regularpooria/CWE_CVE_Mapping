@@ -533,7 +533,7 @@ function handleModelProgress(progress) {
       : files.reduce((sum, item) => sum + item.progress, 0) / files.length;
 
     setProgress({
-      label: "Downloading model",
+      label: "Loading model files",
       detail: totalBytes > 0
         ? `${shortFileName(file)} · ${formatBytes(loadedBytes)} / ${formatBytes(totalBytes)}`
         : shortFileName(file),
@@ -566,7 +566,7 @@ async function initModel() {
   clearError();
   setProgress({
     label: "Loading HiCWE-MiniLM-L12",
-    detail: "Starting the model download…",
+    detail: "Opening the local model files…",
     percent: 0,
     status: "loading",
   });

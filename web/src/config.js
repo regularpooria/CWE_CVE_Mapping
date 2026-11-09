@@ -1,12 +1,12 @@
 // Shared configuration for the browser app and the model worker.
 //
-// The model files under web/public/model/ are mirrored from the anonymous
-// review copy at https://anonymous-hf.com/a/rizm2zd9qgqe/. They are served
-// from this site so the browser does not depend on that host's CORS policy.
+// All model files are bundled under web/public/models/hicwe/ and served from
+// this site. The app never downloads a model from a remote host.
 export const MODEL_ID = "HiCWE-MiniLM-L12";
-export const MODEL_REVISION = "rizm2zd9qgqe";
-export const MODEL_SOURCE_URL = "https://anonymous-hf.com/a/rizm2zd9qgqe/";
-// Valid Hugging Face-style id resolved against env.localModelPath in the worker.
+// Local revision label used to invalidate cached vectors when the bundled
+// model files change.
+export const MODEL_REVISION = "local-v1";
+// Model directory resolved against env.localModelPath in the worker.
 // The files live under web/public/models/hicwe/.
 export const MODEL_LOCAL_ID = "models/hicwe";
 export const MODEL_DTYPE = "q8";

@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Map CVE descriptions to CWE-699 weaknesses in your browser with the HiCWE-MiniLM-L12 sentence encoder. No backend, no uploads."
+    />
+    <meta name="theme-color" content="#2f6fed" />
+    <title>HiCWE</title>
+    <script type="module" crossorigin src="./assets/index-CouvoREn.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-BqjVVBuD.css">
+  </head>
+  <body>
+    <div class="app">
+      <header class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">CWE-699 · Software Development view</p>
+          <h1>HiCWE</h1>
+          <p class="hero-subtitle">Hierarchy-Aware Contrastive CWE Encoder</p>
+          <p class="lede">
+            Type a vulnerability description or paste a CSV of CVE descriptions, then
+            retrieve the most likely CWE weaknesses with <strong>HiCWE-MiniLM-L12</strong>.
+            Everything runs locally in your browser.
+          </p>
+        </div>
+      </header>
+
+      <main>
+        <section class="card status-card" id="status-card" data-status="loading" aria-live="polite">
+          <div class="status-top">
+            <div>
+              <p class="kicker">Model</p>
+              <h2 id="status-label">Starting…</h2>
+            </div>
+          </div>
+          <div
+            class="progress-track indeterminate"
+            id="progress-track"
+            role="progressbar"
+            aria-label="Model and CWE index progress"
+          >
+            <div class="progress-bar" id="progress-bar"></div>
+          </div>
+          <div class="status-bottom">
+            <span id="status-detail">Loading the CWE taxonomy and the model…</span>
+            <span id="status-percent"></span>
+          </div>
+          <div class="status-actions">
+            <span id="cache-note" class="muted">CWE index: not prepared yet.</span>
+            <div class="button-row">
+              <button id="rebuild-index" class="button ghost small" type="button">Rebuild CWE index</button>
+              <button id="retry-model" class="button ghost small" type="button" hidden>Retry model</button>
+            </div>
+          </div>
+        </section>
+
+        <p id="cwe-counts" class="cwe-counts">Loading the CWE taxonomy…</p>
+        <div id="error-banner" class="error-banner" role="alert" hidden></div>
+
+        <section class="card quick-card">
+          <div class="card-head">
+            <div>
+              <p class="kicker">Quick search</p>
+              <h2>Describe a vulnerability</h2>
+            </div>
+            <button id="text-example" class="button ghost small" type="button">Use example</button>
+          </div>
+          <label class="field">
+            <span>CVE description or free text</span>
+            <textarea
+              id="text-query"
+              rows="4"
+              placeholder="e.g. The product does not neutralize special elements used in an SQL command, allowing an attacker to inject SQL…"
+            ></textarea>
+          </label>
+          <div class="quick-controls">
+            <label class="field compact">
+              <span>Closest CWEs</span>
+              <select id="text-top-k">
+                <option value="1">1</option>
+                <option value="3">3</option>
+                <option value="5" selected>5</option>
+                <option value="10">10</option>
+              </select>
+            </label>
+            <button id="text-search-button" class="button primary" type="button" disabled>
+              Find closest CWE descriptions
+            </button>
+            <span id="text-status" class="map-status">Loading…</span>
+          </div>
+          <div id="text-results" class="text-results" aria-live="polite" hidden></div>
+        </section>
+
+        <section class="card upload-card">
+          <div class="card-head">
+            <div>
+              <p class="kicker">Batch · CSV</p>
+              <h2>Upload CVE descriptions</h2>
+            </div>
+            <button id="sample-button" class="button ghost small" type="button">Load sample CSV</button>
+          </div>
+
+          <div id="drop-zone" class="drop-zone">
+            <div class="drop-icon" aria-hidden="true">CSV</div>
+            <p>
+              <strong>Drop a .csv file here</strong> or
+              <button id="browse-button" class="link-button" type="button">browse</button>
+            </p>
+            <p class="muted">The file stays in your browser. Nothing is uploaded to a server.</p>
+            <input id="file-input" type="file" accept=".csv,text/csv" hidden />
+          </div>
+          <p id="file-meta" class="file-meta"></p>
+
+          <div id="column-controls" class="column-controls" hidden>
+            <label class="field">
+              <span>CVE description column</span>
+              <select id="description-column"></select>
+            </label>
+            <label class="field">
+              <span>CVE ID column <em>(optional)</em></span>
+              <select id="id-column"></select>
+            </label>
+            <label class="field compact">
+              <span>Top results</span>
+              <select id="top-k">
+                <option value="1">1</option>
+                <option value="3" selected>3</option>
+                <option value="5">5</option>
+                <option value="10">10</option>
+              </select>
+            </label>
+          </div>
+
+          <div id="preview-wrap" class="preview-wrap" hidden>
+            <div class="preview-head">
+              <span>Preview</span>
+              <span class="muted">First 4 rows</span>
+            </div>
+            <div class="table-scroll">
+              <table id="preview-table" class="preview-table"></table>
+            </div>
+          </div>
+
+          <div class="map-actions">
+            <button id="map-button" class="button primary" type="button" disabled>
+              Map CVE descriptions
+            </button>
+            <button id="cancel-button" class="button ghost danger" type="button" hidden>
+              Cancel
+            </button>
+            <span id="map-status" class="map-status">Loading…</span>
+          </div>
+        </section>
+
+        <section id="results-card" class="card results-card" hidden>
+          <div class="card-head">
+            <div>
+              <p class="kicker">Batch · Results</p>
+              <h2>Predicted CWE matches</h2>
+            </div>
+            <div class="button-row">
+              <button id="clear-results" class="button ghost small" type="button" disabled>
+                Clear
+              </button>
+              <button id="export-button" class="button primary small" type="button" disabled>
+                Download results CSV
+              </button>
+            </div>
+          </div>
+          <div id="results-summary" class="results-summary"></div>
+          <div class="table-scroll results-scroll">
+            <table id="results-table" class="results-table">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col" id="id-header" hidden>CVE ID</th>
+                  <th scope="col">CVE description</th>
+                  <th scope="col">Predicted CWE</th>
+                  <th scope="col">Similarity</th>
+                  <th scope="col">Category</th>
+                  <th scope="col">Details</th>
+                </tr>
+              </thead>
+              <tbody id="results-body"></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <p>
+          Runs HiCWE-MiniLM-L12 with ONNX Runtime Web. The model files are served from this site
+          and no remote model host is contacted. CWE titles and definitions come from
+          <code>CWE_SOFTWARE.json</code>. Descriptions never leave this page.
+        </p>
+        <p class="muted">
+          Similarity is cosine similarity between the CVE embedding and the CWE definition
+          embedding; it is a ranking score, not a calibrated probability.
+        </p>
+      </footer>
+    </div>
+
+    <noscript>
+      <p class="noscript">This tool needs JavaScript to run the model in your browser.</p>
+    </noscript>
+  </body>
+</html>

@@ -182,7 +182,11 @@ per-child Python loops.
   `B = 1..40` categories).
 - `experiments/end_to_end_simulation.ipynb` — replaces the official NVD CWE with HiCWE top-1/top-3/top-5
   predictions for 2021–2025, recomputes the smoothed historical exploitation score from prior years,
-  and compares PR-AUC/P@100 against the official-CWE, no-CWE, random, and optional EPSS/CVSS rankings.
+  and compares PR-AUC/ROC-AUC/P@k/R@k/NDCG@k against the official-CWE, no-CWE, random, and EPSS
+  rankings. It auto-detects CUDA, caches predictions, and downloads the 2020–2022 NVD records on first
+  use; set `RUN_MODE="smoke"` for a 500-CVE/year check. The default exploitation labels are the public
+  CISA KEV + ENISA EUVD KEV union; point `EXTRA_EXPLOITATION_CSV` at a local CSV to add VulnCheck,
+  GreyNoise, or any other labels.
 
 ## Visualizer
 
