@@ -37,23 +37,20 @@ cd ..
 
 ## Deployment
 
-The app is fully static; no GitHub Actions/workflow runs are required. GitHub Pages branch
-deployment can only serve from the repository **root** or the **`/docs`** folder, so the build
-is copied to `docs/` for publishing.
+The app is fully static. `npm run build` writes the complete site to `web/dist`; serve or
+upload the **contents of `web/dist`**. No build step or GitHub Actions are required on the
+host.
 
 ```bash
 cd web
-npm run build:pages
+npm run build
+# then publish the contents of web/dist
 ```
 
-This builds the app and replaces `../docs` with the production files (including
-`docs/.nojekyll`, which stops GitHub from running Jekyll on the output).
+For example, with a publish-directory host such as Surge:
 
-Then commit `docs/` and set **Settings → Pages → Build and deployment → Source** to
-**Deploy from a branch**, branch **`main`**, folder **`/docs`**.
-
-Alternative that keeps build output out of `main`: push the contents of `web/dist` to a
-`gh-pages` branch and select that branch with the **`/`** folder instead.
-
-> `.github/workflows/deploy-web.yml` is optional. It only runs if Actions are enabled; when
-> Pages is set to "Deploy from a branch", the workflow is ignored.
+```bash
+cd web
+npm run build
+npx surge ./dist <your-name>.surge.sh
+```
